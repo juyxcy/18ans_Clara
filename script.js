@@ -13,6 +13,7 @@ const quizForm = document.querySelector('#quizForm');
 const quizAnswer = document.querySelector('#quizAnswer');
 const quizFeedback = document.querySelector('#quizFeedback');
 const quizGifts = document.querySelector('#quizGifts');
+const quizRetry = document.querySelector('#quizRetry');
 const quizBurst = document.querySelector('#quizBurst');
 const cameraPage = document.querySelector('#cameraPage');
 const cameraVideo = document.querySelector('#cameraVideo');
@@ -57,24 +58,39 @@ yes.addEventListener('click', () => {
 
 // Ces questions sont mélangées à chaque ouverture. Tu peux changer questions et réponses ici.
 const coupleQuestions = [
-  { question: 'Quel est mon plat préféré quand j’ai besoin de réconfort ?', answers: ['lasagnes', 'des lasagnes', 'la lasagne'], reveal: 'Les lasagnes.' },
-  { question: 'Quelle est la première chose que je fais quand je suis stressé(e) ?', answers: ['du sport', 'sport', 'je fais du sport'], reveal: 'Du sport.' },
-  { question: 'Quel film ou quelle série pourrais-je regarder encore et encore ?', answers: ['interstellar'], reveal: 'Interstellar.' },
-  { question: 'Quel est mon plus gros red flag drôle selon toi ?', answers: ['je suis trop beau', 'trop beau', 'je suis trop beau c est chiant ca attire toutes les grand meres', 'ca attire toutes les grand meres'], reveal: 'Je suis trop beau — c’est chiant, ça attire toutes les grands-mères.' },
-  { question: 'Si je pouvais manger un seul snack toute ma vie, lequel ce serait ?', answers: ['donuts', 'donut', 'des donuts'], reveal: 'Des donuts.' },
-  { question: 'Quelle chanson me fait immédiatement chanter trop fort ?', answers: ['princess sofia', 'princesse sofia'], reveal: 'Princess Sofia.' },
-  { question: 'De quoi ai-je le plus peur, même si je fais semblant de ne pas avoir peur ?', answers: ['que tu me trompes', 'que tu me trompe', 'que tu me sois infidele', 'que tu sois infidele', 'l infidelite'], reveal: 'Que tu me trompes.' },
-  { question: 'Si je devais partir vivre dans une ville ou un pays, lequel choisirais-je ?', answers: ['los angeles', 'los angeles usa'], reveal: 'Los Angeles.' },
-  { question: 'Quelle est la date de notre rencontre ?', answers: ['1 mai', '1er mai', 'premier mai', '01 mai'], reveal: 'Le 1er mai.' },
-  { question: 'C’est qui le plus beau ?', answers: ['moi', 'c est moi', 'moi bien sur'], reveal: 'Moi, évidemment.' }
+  { question: 'Qui est le plus jaloux entre nous deux ?', answers: ['noa'], reveal: 'Noa.' },
+  { question: 'Quelle est la date où on s’est mis ensemble ?', answers: ['la nuit du 1er mai', 'nuit du 1er mai', '1er mai', '1 mai'], reveal: 'La nuit du 1er mai.' },
+  { question: 'Où nous sommes-nous rencontrés pour la première fois ?', answers: ['le royale', 'bar le royale', 'au royale', 'bar royale'], reveal: 'Au bar Le Royale.' },
+  { question: 'Quel était notre premier vrai rendez-vous ?', answers: ['cinema', 'un cinema', 'au cinema'], reveal: 'Un cinéma.' },
+  { question: 'Qui vole le plus les pulls de l’autre ?', answers: ['clara'], reveal: 'Clara.' },
+  { question: 'Quelle est ma boisson préférée ?', answers: ['coca 0', 'coca zero', 'coca zéro'], reveal: 'Coca 0.' },
+  { question: 'Quelle est ma couleur préférée ?', answers: ['rouge', 'le rouge'], reveal: 'Rouge.' },
+  { question: 'Quel est le premier film ou la première série qu’on a regardé ensemble ?', answers: ['the drama'], reveal: 'The Drama.' },
+  { question: 'Qui a fait les premiers pas ?', answers: ['noa'], reveal: 'Noa.' },
+  { question: 'Quel est le premier voyage qu’on a fait en amoureux ?', answers: ['paris'], reveal: 'Paris.' }
 ];
-const quizQuestions = [...coupleQuestions].sort(() => Math.random() - .5);
+let quizQuestions = [...coupleQuestions].sort(() => Math.random() - .5);
 let quizIndex = 0;
 let correctAnswers = 0;
 const normaliseAnswer = (value) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+function levenshteinDistance(first, second) {
+  const row = Array.from({ length: second.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= first.length; i += 1) {
+    let previous = row[0];
+    row[0] = i;
+    for (let j = 1; j <= second.length; j += 1) {
+      const saved = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (first[i - 1] === second[j - 1] ? 0 : 1));
+      previous = saved;
+    }
+  }
+  return row[second.length];
+}
 const answerMatches = (answer, expectedAnswers) => expectedAnswers.some((expected) => {
   const expectedNormalised = normaliseAnswer(expected);
-  return answer === expectedNormalised || (expectedNormalised.length > 2 && answer.includes(expectedNormalised)) || (answer.length > 2 && expectedNormalised.includes(answer));
+  const distance = levenshteinDistance(answer, expectedNormalised);
+  const tolerance = Math.max(1, Math.floor(expectedNormalised.length * .24));
+  return answer === expectedNormalised || (expectedNormalised.length > 2 && answer.includes(expectedNormalised)) || (answer.length > 2 && expectedNormalised.includes(answer)) || distance <= tolerance;
 });
 function showQuizQuestion() {
   const current = quizQuestions[quizIndex];
@@ -123,13 +139,28 @@ quizForm.addEventListener('submit', (event) => {
       quizScore.textContent = `${correctAnswers} / 10 BONNES RÉPONSES`;
       quizBar.style.width = '100%';
       quizForm.hidden = true;
-      quizFeedback.textContent = correctAnswers === 10 ? 'Un sans-faute. Les cadeaux peuvent s’ouvrir. ♥' : 'Les cadeaux peuvent maintenant s’ouvrir. ♥';
-      quizGifts.hidden = false;
+      if (correctAnswers >= 8) {
+        quizFeedback.textContent = correctAnswers === 10 ? 'Un sans-faute. Les cadeaux peuvent s’ouvrir. ♥' : 'Bravo, tu peux maintenant ouvrir les cadeaux. ♥';
+        quizGifts.hidden = false;
+      } else {
+        quizFeedback.textContent = 'Il faut au moins 8/10 pour déverrouiller les cadeaux. À recommencer !';
+        quizRetry.hidden = false;
+      }
       return;
     }
     showQuizQuestion();
     quizAnswer.focus();
   }, 900);
+});
+quizRetry.addEventListener('click', () => {
+  quizQuestions = [...coupleQuestions].sort(() => Math.random() - .5);
+  quizIndex = 0;
+  correctAnswers = 0;
+  quizForm.hidden = false;
+  quizRetry.hidden = true;
+  quizGifts.hidden = true;
+  showQuizQuestion();
+  quizAnswer.focus();
 });
 quizGifts.addEventListener('click', () => {
   quizPage.hidden = true;
@@ -241,12 +272,16 @@ document.querySelectorAll('.gift').forEach((gift) => gift.addEventListener('clic
       <article class="love-letter">
         <p class="eyebrow">POUR TES 18 ANS</p>
         <h2>Mon <em>amour,</em></h2>
-        <p>Aujourd’hui, le 31 août, tu fêtes tes 18 ans… et moi, j’ai surtout l’impression de célébrer le jour où le monde a eu la brillante idée de créer une nouvelle déesse — et, pour une fois, il a vraiment fait les choses bien.</p>
-        <p>Depuis ce 1er mai où nous nous sommes mis ensemble, tu as transformé mes journées ordinaires en quelque chose de beaucoup plus beau. Tu es devenue cette lumière douce qui arrive sans bruit, mais qui change toute la pièce. Avec toi, même les moments les plus simples prennent une valeur immense : un regard, un fou rire, une discussion qui ne finit jamais, ou juste le fait d’être à côté de toi.</p>
-        <p>Tu es belle, évidemment, mais ce qui me bouleverse le plus chez toi, c’est tout ce qu’il y a derrière ton sourire : ta façon d’être toi, ta force, ta douceur, ton rire qui pourrait facilement être classé comme arme de destruction massive contre ma mauvaise humeur.</p>
-        <p>À 18 ans, tu entres officiellement dans le monde des adultes. Un monde que je connais déjà un petit peu : les premières sorties, les boîtes, les nuits qui semblent trop courtes, les nouvelles libertés et toutes les aventures qui vont avec. Et je veux que tu saches une chose : je serai là pour te le faire découvrir, pour danser avec toi, rire avec toi, te raccompagner quand il le faudra, et vivre chaque nouvelle étape à tes côtés.</p>
-        <p>Je ne sais pas si les étoiles brillent autant parce qu’elles ont de la lumière ou parce qu’elles essaient de te copier. Et honnêtement, même Google n’a pas de réponse à la question que je me pose depuis le 1er mai : comment ai-je fait pour avoir autant de chance ?</p>
-        <p>J’espère te faire sourire autant que tu illumines ma vie. Je t’aime pour ce que tu es, pour ce que tu m’apportes sans même t’en rendre compte, et pour tous les souvenirs qu’il nous reste encore à inventer.</p>
+        <p>Aujourd’hui, le 31 août, tu fêtes tes 18 ans. Et franchement, j’ai surtout l’impression de célébrer le jour où le monde a eu l’excellente idée de créer une nouvelle déesse… parce que, pour une fois, il a vraiment bien fait les choses.</p>
+        <p>Depuis ce 1er mai où on s’est mis ensemble, tu as rendu mes journées beaucoup plus belles. Avec toi, même les moments les plus simples deviennent importants : un regard, un fou rire, une discussion qui dure trop longtemps, ou juste être à côté de toi sans forcément parler.</p>
+        <p>Tu es belle, évidemment. Mais ce que j’aime le plus chez toi, c’est tout ce qu’il y a derrière ton sourire : ta façon d’être toi-même, ta force, ta douceur, et ton rire qui peut clairement être considéré comme une arme contre ma mauvaise humeur. Même si, soyons honnêtes, quand tu rigoles vraiment, on dirait parfois que tu grinces un peu… Je te vanne toujours en te disant qu’il te faudrait du WD-40. Mais au fond, c’est aussi ce rire-là que j’aime : celui que je reconnaîtrais entre mille et qui nous fait repartir de plus belle à chaque fois.</p>
+        <p>Et puis il y a tous ces petits détails que seules les personnes qui te connaissent vraiment remarquent. Ton collier, celui que tu portes toujours. Ton doudou, sans lequel tu ne peux pas vraiment dormir. Et maintenant, mon pull aussi ;) Tu as quand même une sacrée tendance à taper dans les dressings des autres, surtout dans le mien.</p>
+        <p>Il y a cette façon que tu as de faire semblant d’être forte quand ça ne va pas. De cacher beaucoup de choses derrière un sourire, comme si tu ne voulais pas déranger ou inquiéter les autres. Tu attends souvent qu’on te comprenne sans avoir à tout expliquer. Et moi, je veux apprendre à te comprendre, même dans tes silences.</p>
+        <p>Je sais que tu peux pleurer pour presque rien, que tu as vite les larmes aux yeux quand on te crie dessus, et que ton premier réflexe est parfois de te protéger. Je sais aussi que tu t’énerves vite quand tu ne comprends pas quelque chose. Mais même ça, je l’aime, parce que c’est toi. Simplement toi.</p>
+        <p>Tu t’attaches vite, tu as besoin d’être rassurée, et tu donnes tout aux personnes que tu aimes. Tu aimes vraiment fort, sans calculer. Et c’est une de tes plus belles qualités, même si parfois tu ne t’en rends pas compte.</p>
+        <p>À 18 ans, tu entres officiellement dans le monde des adultes : les premières sorties, les boîtes, les nuits trop courtes, les nouvelles libertés et toutes les aventures qui vont avec. Et je veux que tu saches une chose : je serai là pour les découvrir avec toi, pour danser avec toi, rire avec toi, te raccompagner quand il le faudra, et vivre toutes ces nouvelles étapes à tes côtés.</p>
+        <p>Je ne sais pas si les étoiles brillent autant parce qu’elles ont de la lumière ou parce qu’elles essaient de te copier. Et honnêtement, même Google n’a pas la réponse à la question que je me pose depuis le 1er mai : comment j’ai fait pour avoir autant de chance ?</p>
+        <p>J’espère réussir à te faire sourire autant que tu illumines ma vie. Je t’aime pour ce que tu es, pour tout ce que tu m’apportes sans même t’en rendre compte, pour tous ces petits détails qui font que tu es toi, et pour tous les souvenirs qu’il nous reste encore à créer.</p>
         <p class="letter-ending">Joyeux 18 ans, ma chérie.<br />Je t’aime aujourd’hui, demain, et dans toutes les versions de nous qui nous attendent.</p>
       </article>`;
   }
