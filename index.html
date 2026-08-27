@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <section class="love-gate" id="loveGate" aria-label="Une question importante">
+    <section class="love-gate" id="loveGate" aria-label="Une question importante" hidden>
       <div class="hearts" aria-hidden="true"></div>
       <p class="eyebrow">AVANT D'OUVRIR TON CADEAU…</p>
       <p class="gate-count" id="gateCount">QUESTION IMPORTANTE</p>
@@ -20,6 +20,16 @@
       <div class="answer-buttons" id="answers">
         <button class="yes" id="yes" type="button">Oui, évidemment ♥</button>
         <button class="no" id="no" type="button">Non</button>
+      </div>
+    </section>
+    <section class="quiz-intro" id="quizIntro" aria-label="Présentation du cadeau">
+      <div class="quiz-intro-card">
+        <p class="eyebrow">POUR TES 18 ANS</p>
+        <h1>Un petit monde<br /><em>rien que pour toi.</em></h1>
+        <p>Quelques surprises, des souvenirs à créer et tout l’amour que j’ai envie de te donner aujourd’hui. Bienvenue dans ton cadeau, ma chérie.</p>
+        <p class="quiz-intro-note">Je t’aime. ♥</p>
+        <p class="quiz-ps">P.S. : merci TikTok pour l’idée. ✦</p>
+        <button class="primary" id="startQuiz" type="button">Commencer <span>→</span></button>
       </div>
     </section>
     <section class="quiz-page" id="quizPage" hidden aria-label="Quiz sur nous deux">

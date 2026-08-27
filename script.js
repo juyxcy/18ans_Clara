@@ -3,6 +3,8 @@ const yes = document.querySelector('#yes');
 const no = document.querySelector('#no');
 const gateMessage = document.querySelector('#gateMessage');
 const gateCount = document.querySelector('#gateCount');
+const quizIntro = document.querySelector('#quizIntro');
+const startQuiz = document.querySelector('#startQuiz');
 const quizPage = document.querySelector('#quizPage');
 const quizCard = document.querySelector('#quizCard');
 const quizQuestion = document.querySelector('#quizQuestion');
@@ -54,6 +56,10 @@ yes.addEventListener('click', () => {
     quizPage.hidden = false;
     quizAnswer.focus();
   }, 680);
+});
+startQuiz.addEventListener('click', () => {
+  quizIntro.hidden = true;
+  loveGate.hidden = false;
 });
 
 // Ces questions sont mélangées à chaque ouverture. Tu peux changer questions et réponses ici.
@@ -275,7 +281,7 @@ document.querySelectorAll('.gift').forEach((gift) => gift.addEventListener('clic
         <p>Aujourd’hui, le 31 août, tu fêtes tes 18 ans. Et franchement, j’ai surtout l’impression de célébrer le jour où le monde a eu l’excellente idée de créer une nouvelle déesse… parce que, pour une fois, il a vraiment bien fait les choses.</p>
         <p>Depuis ce 1er mai où on s’est mis ensemble, tu as rendu mes journées beaucoup plus belles. Avec toi, même les moments les plus simples deviennent importants : un regard, un fou rire, une discussion qui dure trop longtemps, ou juste être à côté de toi sans forcément parler.</p>
         <p>Tu es belle, évidemment. Mais ce que j’aime le plus chez toi, c’est tout ce qu’il y a derrière ton sourire : ta façon d’être toi-même, ta force, ta douceur, et ton rire qui peut clairement être considéré comme une arme contre ma mauvaise humeur. Même si, soyons honnêtes, quand tu rigoles vraiment, on dirait parfois que tu grinces un peu… Je te vanne toujours en te disant qu’il te faudrait du WD-40. Mais au fond, c’est aussi ce rire-là que j’aime : celui que je reconnaîtrais entre mille et qui nous fait repartir de plus belle à chaque fois.</p>
-        <p>Et puis il y a tous ces petits détails que seules les personnes qui te connaissent vraiment remarquent. Ton collier, celui que tu portes toujours. Ton doudou, sans lequel tu ne peux pas vraiment dormir. Et maintenant, mon pull aussi ;) Tu as quand même une sacrée tendance à taper dans les dressings des autres, surtout dans le mien.</p>
+        <p>Et puis il y a tous ces petits détails que seules les personnes qui te connaissent vraiment remarquent. Ton collier, celui que tu portes toujours. Ton doudou, sans lequel tu ne peux pas vraiment dormir. Et maintenant, mon pull aussi ;) Tu as quand même une sacrée tendance à taper dans les dressings des autres.</p>
         <p>Il y a cette façon que tu as de faire semblant d’être forte quand ça ne va pas. De cacher beaucoup de choses derrière un sourire, comme si tu ne voulais pas déranger ou inquiéter les autres. Tu attends souvent qu’on te comprenne sans avoir à tout expliquer. Et moi, je veux apprendre à te comprendre, même dans tes silences.</p>
         <p>Je sais que tu peux pleurer pour presque rien, que tu as vite les larmes aux yeux quand on te crie dessus, et que ton premier réflexe est parfois de te protéger. Je sais aussi que tu t’énerves vite quand tu ne comprends pas quelque chose. Mais même ça, je l’aime, parce que c’est toi. Simplement toi.</p>
         <p>Tu t’attaches vite, tu as besoin d’être rassurée, et tu donnes tout aux personnes que tu aimes. Tu aimes vraiment fort, sans calculer. Et c’est une de tes plus belles qualités, même si parfois tu ne t’en rends pas compte.</p>
